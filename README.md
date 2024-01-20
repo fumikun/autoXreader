@@ -7,7 +7,7 @@
 #### ドライバのインストール
 ドライバのインストールにはchocolateyを使います。  
 chocolateyがインストールされていない場合は、[こちら](https://chocolatey.org/install)からインストールしてください。  
-[こちら]("https://zenn.dev/kazuma_r5/articles/a6d2608446ebdf")も参考にしてください
+[こちら](https://zenn.dev/kazuma_r5/articles/a6d2608446ebdf)も参考にしてください
 
 chocolateyがインストールできたら、コマンドプロンプトを管理者権限で開き、以下のコマンドを実行してください。
 ```bash
