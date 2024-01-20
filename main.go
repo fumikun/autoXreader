@@ -7,6 +7,8 @@ import (
 	"github.com/labstack/gommon/color"
 	"github.com/sclevine/agouti"
 	"log"
+	"math"
+	"math/rand"
 	"os"
 	"strconv"
 	"strings"
@@ -20,8 +22,20 @@ func main() {
 	}
 	userName := os.Getenv("USER_NAME")
 	userPass := os.Getenv("USER_PASS")
-	loadingTime := os.Getenv("LOADING_TIME")
+	loadingTime := os.Getenv("LOADING_WAIT")
+	strRandTime := os.Getenv("READ_RANDOM")
+	randTime, err := strconv.Atoi(strRandTime)
 	waitTime, err := strconv.Atoi(loadingTime)
+	waitTimeIncludeRandom := int(math.Abs(float64(rand.Intn((waitTime+randTime)-(waitTime-randTime)) + waitTime - randTime)))
+	if os.Getenv("DEBUG") == "1" {
+		fmt.Println("DEBUG MODE")
+		fmt.Println("USER_NAME:" + userName)
+		fmt.Println("USER_PASS:" + userPass)
+		fmt.Println("LOADING_TIME:" + loadingTime)
+		fmt.Println("READ_RANDOM:" + strRandTime)
+		fmt.Println("WAIT_TIME:" + strconv.Itoa(waitTime))
+		fmt.Println("WAIT_TIME_INCLUDE_RANDOM:" + strconv.Itoa(waitTimeIncludeRandom))
+	}
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -37,8 +51,7 @@ func main() {
 	}
 	color.Print(color.Cyan("Input Target 'FULL' URL:"))
 	targetURL := src.CmdLineInput()
-	driver := agouti.ChromeDriver(
-		agouti.ChromeOptions("args", []string{"--headless"}))
+	driver := agouti.ChromeDriver()
 	defer driver.Stop()
 	if err := driver.Start(); err != nil {
 		log.Fatalf("ERROR SELENIUM: %v", err)
@@ -77,6 +90,10 @@ func main() {
 	fmt.Println(nowPage)
 	fmt.Println(maxPage)
 	for i := nowPage; i < maxPage+1; {
+		if os.Getenv("DEBUG") == "1" {
+			fmt.Println("NOW_PAGE:" + strconv.Itoa(i))
+			fmt.Println("MAX_PAGE:" + strconv.Itoa(maxPage))
+		}
 		pageNumInd, err = page.FindByID("count_signal0").Text()
 		if err != nil {
 			log.Fatal(err)
@@ -88,15 +105,15 @@ func main() {
 		}
 		fmt.Println(i)
 		if i == maxPage {
-			time.Sleep(time.Duration(waitTime) * time.Second)
+			time.Sleep(time.Duration(waitTimeIncludeRandom) * time.Second)
 			err := page.FindByButton("Close").Click()
 			if err != nil {
 				log.Fatal(err)
 			}
-			time.Sleep(time.Duration(waitTime) * time.Second)
+			time.Sleep(time.Duration(waitTimeIncludeRandom) * time.Second)
 			page.Navigate("https://xreading.com/blocks/institution/dashboard.php?tm=dashboard")
 		} else {
-			time.Sleep(time.Duration(waitTime) * time.Second)
+			time.Sleep(time.Duration(waitTimeIncludeRandom) * time.Second)
 			err := page.FindByButton("Next").Click()
 			if err != nil {
 				log.Fatal(err)
@@ -104,4 +121,8 @@ func main() {
 		}
 	}
 	time.Sleep(5 * time.Second)
+	err = driver.Stop()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
