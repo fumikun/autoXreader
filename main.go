@@ -1,7 +1,15 @@
 package main
 
-import "fmt"
+import (
+	"autoXreader/src"
+	"autoXreader/src/selenium"
+	"github.com/labstack/gommon/color"
+)
 
 func main() {
-	fmt.Println("Hello World")
+	color.Print(color.Cyan("Input UserName:"))
+	userName := src.CmdLineInput()
+	color.Print(color.Cyan("Input Password:"))
+	userPass := src.CmdLineInput()
+	selenium.Init(userName, userPass)
 }
